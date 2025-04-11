@@ -10,7 +10,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
         <label class="form-label" for="surname"> Surname </label>
     </div>
     <div class="col">
-        <input matInput [value]="value" type="text" class="form-control" name="surname" (input)="onInput($event)"/>
+        <input matInput [value]="value" type="text" class="form-control" name="surname" (input)="onInput($event)" (blur)="onTouched()"/>
     </div>
   </div>
   `,
@@ -27,7 +27,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 export class CustomTextControlComponent implements ControlValueAccessor {
   
   value: string | undefined;
-  
+
   onChange = (value: string) => {};
   onTouched   = () => {};
   
