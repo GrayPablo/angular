@@ -1,45 +1,49 @@
-import { TitleCasePipe } from '@angular/common';
-import { Component, Input, Pipe } from '@angular/core';
-import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
+import { NgIf, TitleCasePipe } from '@angular/common';
+import { Component, Input, OnInit, Optional} from '@angular/core';
+import { AbstractControl, ControlValueAccessor, NgControl, ValidationErrors, Validator } from '@angular/forms';
+import { MyDirective } from '../directives/my-directive.directive';
+import { MatError, MatFormField, MatHint } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-custom-text-control',
-  imports: [TitleCasePipe],
+  imports: [MatFormField, MatHint, MatInputModule, MatError, NgIf, TitleCasePipe],
   template: `
   <div class="row">
     <div class="col">
-        <label class="form-label" for="surname"> {{label | titlecase }} </label>
+        <label class="form-label"> {{label | titlecase }} </label>
     </div>
     <div class="col">
-        <input matInput [value]="value" type="text" class="form-control" name="surname" (input)="onInput($event)" (blur)="onTouched()"/>
-        @if (this.control?.touched) {
-          @if (this.control?.hasError('required')) {
-            <div>Required</div>
-          }
-          @if (this.control?.hasError('minlength')) {
-            <div>Too short</div>
-          }
-          @if (this.control?.hasError('maxlength')) {
-            <div>Too long</div>
-          }
+      <mat-form-field>
+        <input matInput 
+              [value]="value" 
+              type="text" 
+              class="form-control" 
+              name="surname" 
+              formControl="control"
+              (input)="onInput($event)" (blur)="onTouched()"/>
+        @if (hasDirective) {
+          <mat-hint>Directive present!</mat-hint>
         }
-        
-      </div>
+        <mat-error *ngIf="this.control?.hasError('required')">Required</mat-error>
+        <!-- @if (this.control?.touched) { -->
+        <!-- @if (this.control?.hasError('required')) {
+          <mat-error *ngIf="">Required</mat-error>
+        } -->
+        @if (this.control?.hasError('minlength')) {
+          <mat-error>Too short</mat-error>
+        }
+        @if (this.control?.hasError('maxlength')) {
+          <mat-error>Too long</mat-error>
+        }
+        <!-- } -->
+      </mat-form-field>
+    </div>
   </div>
   `,
   styleUrl: './custom-text-control.component.css',
   standalone: true,
   providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      multi: true,
-      useExisting: CustomTextControlComponent
-    },
-    {
-      provide: NG_VALIDATORS,
-      multi: true,
-      useExisting: CustomTextControlComponent
-    }
   ]
 })
 export class CustomTextControlComponent implements ControlValueAccessor, Validator {
@@ -49,8 +53,17 @@ export class CustomTextControlComponent implements ControlValueAccessor, Validat
 
   value: string | undefined;
 
-  control: AbstractControl | undefined;
+  // private directive: MyDirective | undefined;
+
+  // control: AbstractControl | undefined;
   
+  constructor(private ngControl: NgControl, @Optional() private directive: MyDirective) {
+    if (this.ngControl) {
+      this.ngControl.valueAccessor = this;
+
+    }
+  }
+
   onChange = (value: string) => {};
   onTouched   = () => {};
   onValidatorChange = () => {};
@@ -75,12 +88,19 @@ export class CustomTextControlComponent implements ControlValueAccessor, Validat
   }
 
   validate(control: AbstractControl): ValidationErrors | null {
-    this.control = control;
     return null;
   }
 
   registerOnValidatorChange(fn: () => void): void {
     this.onValidatorChange = fn;
+  }
+
+  get control(): AbstractControl | null {
+    return this.ngControl?.control;
+  } 
+
+  get hasDirective(): boolean {
+    return this.directive ? true : false;
   }
 
 }

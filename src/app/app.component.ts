@@ -2,10 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CustomTextControlComponent } from './custom-text-control/custom-text-control.component';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MyDirective } from './directives/my-directive.directive';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CustomTextControlComponent, ReactiveFormsModule],
+  imports: [RouterOutlet, CustomTextControlComponent, ReactiveFormsModule, MyDirective],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   standalone: true
